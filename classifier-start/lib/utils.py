@@ -13,10 +13,9 @@
 # limitations under the License.
 
 import re
+from .svg import *
 
-from edgetpuvision import svg
-
-CSS_STYLES = str(svg.CssStyle({'.back': svg.Style(fill='black',
+CSS_STYLES = str(CssStyle({'.back': Style(fill='black',
                                                   stroke='black',
                                                   stroke_width='0.5em')}))
 
@@ -27,10 +26,10 @@ def overlay(title, results, inference_time, layout):
     x0, y0, width, height = layout.window
     font_size = 0.03 * height
 
-    defs = svg.Defs()
+    defs = Defs()
     defs += CSS_STYLES
 
-    doc = svg.Svg(width=width, height=height,
+    doc = Svg(width=width, height=height,
                   viewBox='%s %s %s %s' % layout.window,
                   font_size=font_size, font_family='monospace', font_weight=500)
     doc += defs
@@ -43,17 +42,17 @@ def overlay(title, results, inference_time, layout):
     for i, line in enumerate(lines):
         y = oy2 - i * 1.7 * font_size
 
-        doc += svg.Rect(x=0, y=0, width=size_em(len(line)), height='1em',
+        doc += Rect(x=0, y=0, width=size_em(len(line)), height='1em',
                         transform='translate(%s, %s) scale(-1,-1)' % (ox2, y),
                         _class='back')
 
-        doc += svg.Text(line, text_anchor='end', x=ox2, y=y, fill='white')
+        doc += Text(line, text_anchor='end', x=ox2, y=y, fill='white')
 
     # Title
     if title:
-        doc += svg.Rect(x=0, y=0, width=size_em(len(title)), height='1em',
+        doc += Rect(x=0, y=0, width=size_em(len(title)), height='1em',
                         transform='translate(%s, %s) scale(1,-1)' % (ox1, oy1), _class='back')
-        doc += svg.Text(title, x=ox1, y=oy1, fill='white')
+        doc += Text(title, x=ox1, y=oy1, fill='white')
 
     # Info
     lines = [
@@ -62,8 +61,16 @@ def overlay(title, results, inference_time, layout):
 
     for i, line in enumerate(reversed(lines)):
         y = oy2 - i * 1.7 * font_size
-        doc += svg.Rect(x=0, y=0, width=size_em(len(line)), height='1em',
+        doc += Rect(x=0, y=0, width=size_em(len(line)), height='1em',
                        transform='translate(%s, %s) scale(1,-1)' % (ox1, y), _class='back')
-        doc += svg.Text(line, x=ox1, y=y, fill='white')
+        doc += Text(line, x=ox1, y=y, fill='white')
 
     return str(doc)
+
+
+LABEL_PATTERN = re.compile(r'\s*(\d+)(.+)')
+
+def load_labels(path):
+    with open(path, 'r', encoding='utf-8') as f:
+       lines = (LABEL_PATTERN.match(line).groups() for line in f.readlines())
+       return {int(num): text.strip() for num, text in lines}

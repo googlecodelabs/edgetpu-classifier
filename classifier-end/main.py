@@ -13,9 +13,8 @@
 # limitations under the License.
 
 import argparse
-import helpers
-
-from edgetpuvision import gstreamer, utils
+import lib.gstreamer as gstreamer
+import lib.utils as utils
 
 from edgetpu.classification.engine import ClassificationEngine
 
@@ -50,7 +49,7 @@ def main(args):
         results = classify_image(tensor, engine, labels)
         time = inference_time(engine)
         if results and time:
-            return helpers.overlay('Edge TPU Image Classifier', results, time, layout)
+            return utils.overlay('Edge TPU Image Classifier', results, time, layout)
 
     gstreamer.run(inference_size, frame_callback,
         source=input_source,
